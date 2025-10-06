@@ -1,0 +1,982 @@
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Advanced Bot File Manager</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background effects */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(120, 200, 255, 0.3) 0%, transparent 50%);
+            z-index: -1;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Enhanced header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ffd700, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.3rem;
+            font-weight: 300;
+        }
+
+        /* Modern cards */
+        .modern-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .modern-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .modern-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.8s;
+        }
+
+        .modern-card:hover::before {
+            left: 100%;
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
+            border: none;
+            padding: 1.5rem;
+            border-radius: 24px 24px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header-custom::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%),
+                        linear-gradient(-45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%);
+            background-size: 20px 20px;
+            animation: movePattern 20s linear infinite;
+        }
+
+        @keyframes movePattern {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 40px; }
+        }
+
+        .card-title-custom {
+            color: white;
+            font-weight: 700;
+            font-size: 1.4rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Enhanced upload area */
+        .upload-area {
+            border: 3px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: rotate 8s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .upload-area:hover::before {
+            opacity: 1;
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+            transform: scale(1.02);
+            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.2);
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .upload-area input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+        }
+
+        .upload-content {
+            pointer-events: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            color: white;
+            font-weight: 600;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+
+        /* Enhanced file preview */
+        .file-preview {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            animation: slideIn 0.5s ease-out;
+            display: none;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .file-info {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .file-icon {
+            font-size: 3rem;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+        }
+
+        .file-details h4 {
+            color: white;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .file-details p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        /* Enhanced buttons */
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            color: white;
+        }
+
+        .btn-success { 
+            background: linear-gradient(135deg, #28a745, #20c997); 
+            color: white;
+            box-shadow: 0 4px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 8px 30px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-secondary { 
+            background: linear-gradient(135deg, #6c757d, #495057); 
+            color: white;
+            box-shadow: 0 4px 20px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 8px 30px rgba(108, 117, 125, 0.4);
+        }
+
+        /* Enhanced status messages */
+        .status {
+            padding: 20px 25px;
+            border-radius: 16px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideIn 0.5s ease-out;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .success {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.8), rgba(32, 201, 151, 0.8));
+            color: white;
+            border-left: 4px solid #28a745;
+        }
+
+        .error {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.8), rgba(255, 99, 71, 0.8));
+            color: white;
+            border-left: 4px solid #dc3545;
+        }
+
+        /* Enhanced confirmation popup */
+        .confirmation-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .popup-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 450px;
+            animation: bounceIn 0.5s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .success-icon {
+            font-size: 5rem;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 25px;
+        }
+
+        .popup-content h3 {
+            color: white;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .popup-content p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 25px;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-left: 4px solid #ffd700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Text styles */
+        .text-modern {
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .text-muted-modern {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container { 
+                padding: 15px; 
+            }
+            
+            .header h1 { 
+                font-size: 2.5rem; 
+            }
+            
+            .upload-area {
+                padding: 2rem 1rem;
+            }
+            
+            .btn { 
+                padding: 10px 20px; 
+                font-size: 13px; 
+            }
+            
+            .file-info {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        /* Enhanced animations */
+        .interactive-element {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .interactive-element:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Tab system for update modes */
+        .tab-system {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 6px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Advanced Bot Manager</h1>
+            <p>Professional file management with intelligent features</p>
+        </div>
+
+        {% if message %}
+        <div class="status {{ 'success' if success else 'error' }}">
+            <i class="fas {{ 'fa-check-circle' if success else 'fa-exclamation-circle' }}"></i>
+            <span>{{ message }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Enhanced File Upload System -->
+        <div class="modern-card">
+            <div class="card-header-custom">
+                <h3 class="card-title-custom">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    Advanced File Upload
+                </h3>
+            </div>
+            <div style="padding: 30px;">
+                <!-- Tab System -->
+                <div class="tab-system">
+                    <button class="tab-button active" onclick="switchTab('upload')">
+                        <i class="fas fa-upload"></i>
+                        Upload New File
+                    </button>
+                    <button class="tab-button" onclick="switchTab('update')">
+                        <i class="fas fa-sync-alt"></i>
+                        Update Existing
+                    </button>
+                </div>
+
+                <!-- Upload New File Tab -->
+                <div id="upload-tab" class="tab-content active">
+                    <form id="uploadForm" method="POST" action="/upload" enctype="multipart/form-data">
+                        <div class="upload-area" id="uploadArea">
+                            <input type="file" name="file" id="fileInput" accept=".py,.json,.txt,.md,.html,.css,.js" required>
+                            <div class="upload-content">
+                                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                <h4 class="upload-text">Drag files here or click to select</h4>
+                                <p class="upload-subtext">Supports: Python, JSON, TXT, MD, HTML, CSS, JS files</p>
+                            </div>
+                        </div>
+
+                        <div class="file-preview" id="filePreview">
+                            <div class="file-info">
+                                <div class="file-icon" id="fileIcon">📄</div>
+                                <div class="file-details">
+                                    <h4 id="fileName">File Name</h4>
+                                    <p id="fileSize">File Size</p>
+                                    <p id="fileType">File Type</p>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-upload"></i>
+                                    Upload File
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="cancelUpload()">
+                                    <i class="fas fa-times"></i>
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Update Existing File Tab -->
+                <div id="update-tab" class="tab-content">
+                    <div class="upload-area" id="updateArea">
+                        <input type="file" id="updateInput" accept=".py,.json,.txt,.md,.html,.css,.js">
+                        <div class="upload-content">
+                            <i class="fas fa-sync-alt upload-icon"></i>
+                            <h4 class="upload-text">Upload file to replace existing one</h4>
+                            <p class="upload-subtext">System will automatically find similar files</p>
+                        </div>
+                    </div>
+
+                    <div class="file-preview" id="updatePreview">
+                        <div class="file-info">
+                            <div class="file-icon" id="updateFileIcon">📄</div>
+                            <div class="file-details">
+                                <h4 id="updateFileName">File Name</h4>
+                                <p id="updateFileSize">File Size</p>
+                            </div>
+                        </div>
+
+                        <div id="similarFiles" style="display: none;">
+                            <h5 class="text-modern" style="margin-bottom: 15px;">
+                                <i class="fas fa-search"></i>
+                                Similar files found:
+                            </h5>
+                            <div id="similarFilesList"></div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 20px;">
+                            <button class="btn btn-success" onclick="updateFile()" id="updateBtn" disabled>
+                                <i class="fas fa-sync-alt"></i>
+                                Update Selected File
+                            </button>
+                            <button class="btn btn-secondary" onclick="cancelUpdate()">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Confirmation Popup -->
+    <div class="confirmation-popup" id="confirmationPopup">
+        <div class="popup-content">
+            <i class="fas fa-check-circle success-icon"></i>
+            <h3>Operation Successful!</h3>
+            <p>Your file has been processed successfully</p>
+            <button class="btn btn-success" onclick="closePopup()">
+                <i class="fas fa-check"></i>
+                OK
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div style="text-align: center;">
+            <div class="loading-spinner"></div>
+            <h5 style="color: white; margin-top: 20px;">Processing...</h5>
+            <p style="color: rgba(255, 255, 255, 0.7);">Please wait</p>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const updateArea = document.getElementById('updateArea');
+        const fileInput = document.getElementById('fileInput');
+        const updateInput = document.getElementById('updateInput');
+        const filePreview = document.getElementById('filePreview');
+        const updatePreview = document.getElementById('updatePreview');
+        const uploadForm = document.getElementById('uploadForm');
+        const confirmationPopup = document.getElementById('confirmationPopup');
+
+        let currentFiles = {{ files | tojson }};
+        let selectedUpdateFile = null;
+        let targetFile = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            addInteractiveEffects();
+            setupDragAndDrop();
+        });
+
+        // Add interactive effects
+        function addInteractiveEffects() {
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px) scale(1.05)';
+                });
+                
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            document.querySelectorAll('.modern-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + '-tab').classList.add('active');
+
+            // Reset forms
+            if (tabName === 'upload') {
+                cancelUpload();
+            } else {
+                cancelUpdate();
+            }
+        }
+
+        // Setup drag and drop
+        function setupDragAndDrop() {
+            setupDropZone(uploadArea, fileInput, handleFileSelection);
+            setupDropZone(updateArea, updateInput, handleUpdateSelection);
+        }
+
+        function setupDropZone(dropZone, input, handler) {
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    input.files = files;
+                    handler(files[0]);
+                }
+            });
+
+            input.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handler(e.target.files[0]);
+                }
+            });
+        }
+
+        function handleFileSelection(file) {
+            filePreview.style.display = 'block';
+            
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+            document.getElementById('fileType').textContent = file.type || 'Unknown';
+
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const iconMap = {
+                'py': '🐍', 'json': '📊', 'txt': '📝', 'md': '📋',
+                'html': '🌐', 'css': '🎨', 'js': '⚡'
+            };
+            document.getElementById('fileIcon').textContent = iconMap[fileExtension] || '📄';
+        }
+
+        function handleUpdateSelection(file) {
+            selectedUpdateFile = file;
+            updatePreview.style.display = 'block';
+            
+            document.getElementById('updateFileName').textContent = file.name;
+            document.getElementById('updateFileSize').textContent = formatFileSize(file.size);
+
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const iconMap = {
+                'py': '🐍', 'json': '📊', 'txt': '📝', 'md': '📋',
+                'html': '🌐', 'css': '🎨', 'js': '⚡'
+            };
+            document.getElementById('updateFileIcon').textContent = iconMap[fileExtension] || '📄';
+
+            findSimilarFiles(file.name);
+        }
+
+        function findSimilarFiles(fileName) {
+            const baseName = fileName.split('.')[0];
+            const extension = fileName.split('.').pop();
+
+            const similarFiles = currentFiles.filter(file => {
+                const currentBaseName = file.split('.')[0];
+                const currentExtension = file.split('.').pop();
+                return currentBaseName === baseName || currentExtension === extension;
+            });
+
+            const similarFilesContainer = document.getElementById('similarFiles');
+            const similarFilesList = document.getElementById('similarFilesList');
+
+            if (similarFiles.length > 0) {
+                similarFilesContainer.style.display = 'block';
+                similarFilesList.innerHTML = '';
+
+                similarFiles.forEach(file => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'similar-file-item';
+                    fileItem.style.cssText = `
+                        background: rgba(255, 255, 255, 0.1);
+                        border-radius: 12px;
+                        padding: 15px;
+                        margin-bottom: 10px;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        border: 2px solid transparent;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    `;
+                    fileItem.innerHTML = `
+                        <div>
+                            <strong style="color: white;">📄 ${file}</strong>
+                            <br>
+                            <small style="color: rgba(255, 255, 255, 0.7);">Will be replaced</small>
+                        </div>
+                        <i class="fas fa-arrow-right" style="color: #ffd700;"></i>
+                    `;
+                    
+                    fileItem.addEventListener('click', function() {
+                        document.querySelectorAll('.similar-file-item').forEach(item => {
+                            item.style.borderColor = 'transparent';
+                            item.style.background = 'rgba(255, 255, 255, 0.1)';
+                        });
+                        
+                        this.style.borderColor = '#ffd700';
+                        this.style.background = 'rgba(255, 215, 0, 0.2)';
+                        targetFile = file;
+                        document.getElementById('updateBtn').disabled = false;
+                    });
+
+                    fileItem.addEventListener('mouseenter', function() {
+                        if (this.style.borderColor !== 'rgb(255, 215, 0)') {
+                            this.style.background = 'rgba(255, 255, 255, 0.2)';
+                        }
+                    });
+
+                    fileItem.addEventListener('mouseleave', function() {
+                        if (this.style.borderColor !== 'rgb(255, 215, 0)') {
+                            this.style.background = 'rgba(255, 255, 255, 0.1)';
+                        }
+                    });
+                    
+                    similarFilesList.appendChild(fileItem);
+                });
+            } else {
+                similarFilesContainer.style.display = 'none';
+            }
+        }
+
+        function updateFile() {
+            if (!selectedUpdateFile || !targetFile) {
+                alert('Please select a file to update');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', selectedUpdateFile);
+            formData.append('target', targetFile);
+
+            showLoading(true);
+
+            fetch('/update', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                showLoading(false);
+                if (html.includes('updated successfully')) {
+                    showSuccessPopup();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    document.body.innerHTML = html;
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                console.error('Error:', error);
+                alert('An error occurred while updating the file');
+            });
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function cancelUpload() {
+            filePreview.style.display = 'none';
+            fileInput.value = '';
+            uploadArea.classList.remove('dragover');
+        }
+
+        function cancelUpdate() {
+            updatePreview.style.display = 'none';
+            updateInput.value = '';
+            updateArea.classList.remove('dragover');
+            selectedUpdateFile = null;
+            targetFile = null;
+            document.getElementById('updateBtn').disabled = true;
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        function showSuccessPopup() {
+            confirmationPopup.style.display = 'flex';
+        }
+
+        function closePopup() {
+            confirmationPopup.style.display = 'none';
+        }
+
+        // Form submission handler
+        uploadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            showLoading(true);
+
+            const formData = new FormData(uploadForm);
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                showLoading(false);
+                if (html.includes('uploaded successfully')) {
+                    showSuccessPopup();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    document.body.innerHTML = html;
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                console.error('Error:', error);
+                alert('An error occurred while uploading the file');
+            });
+        });
+
+        // Close popup when clicking outside
+        confirmationPopup.addEventListener('click', (e) => {
+            if (e.target === confirmationPopup) {
+                closePopup();
+            }
+        });
+    </script>
+</body>
+</html>

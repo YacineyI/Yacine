@@ -1,0 +1,486 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحرير {{ filename }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .file-info {
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            padding: 15px 20px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .file-icon {
+            font-size: 2em;
+            padding: 10px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+        }
+        
+        .editor-container {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .editor-header {
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .editor-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+        
+        .editor-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .editor-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .editor-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .btn-save { background: #27ae60; color: white; }
+        .btn-format { background: #f39c12; color: white; }
+        .btn-fullscreen { background: #9b59b6; color: white; }
+        
+        textarea {
+            width: 100%;
+            height: 600px;
+            font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            padding: 20px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            line-height: 1.6;
+            background: #2d3748;
+            color: #e2e8f0;
+            resize: none;
+            tab-size: 4;
+        }
+        
+        .line-numbers {
+            position: absolute;
+            left: 0;
+            top: 0;
+            padding: 20px 10px;
+            background: #1a202c;
+            color: #718096;
+            font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            border-right: 1px solid #4a5568;
+            user-select: none;
+            pointer-events: none;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 8px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .btn-success { background: linear-gradient(45deg, #2ecc71, #27ae60); color: white; }
+        .btn-secondary { background: linear-gradient(45deg, #95a5a6, #7f8c8d); color: white; }
+        .btn-primary { background: linear-gradient(45deg, #3498db, #2980b9); color: white; }
+        
+        .actions {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+        }
+        
+        .status {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .success {
+            background: linear-gradient(45deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        
+        .error {
+            background: linear-gradient(45deg, #f8d7da, #f1b0b7);
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 10px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+        
+        .fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999 !important;
+            background: white !important;
+            border-radius: 0 !important;
+        }
+        
+        .fullscreen textarea {
+            height: calc(100vh - 120px) !important;
+        }
+        
+        @media (max-width: 768px) {
+            .container { 
+                padding: 15px; 
+                margin: 10px; 
+                border-radius: 15px;
+            }
+            .header h1 { font-size: 1.8em; }
+            textarea { height: 500px; font-size: 13px; }
+            .btn { padding: 10px 16px; font-size: 14px; }
+            .editor-header { padding: 10px 15px; }
+            .stats { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="editorContainer">
+        <div class="header">
+            <h1>✏️ تحرير الملف</h1>
+        </div>
+
+        {% if message %}
+        <div class="status {{ 'success' if success else 'error' }}">
+            <span>{{ '✅' if success else '❌' }}</span>
+            <span>{{ message }}</span>
+        </div>
+        {% endif %}
+
+        <div class="file-info">
+            <div class="file-icon">
+                {% if filename.endswith('.py') %}🐍
+                {% elif filename.endswith('.json') %}📊
+                {% elif filename.endswith('.txt') %}📝
+                {% elif filename.endswith('.md') %}📋
+                {% else %}📄{% endif %}
+            </div>
+            <div>
+                <h3>{{ filename }}</h3>
+                <p>نوع الملف: {{ filename.split('.')[-1].upper() }}</p>
+            </div>
+        </div>
+
+        <div class="stats">
+            <span>عدد الأسطر: <strong id="lineCount">0</strong></span>
+            <span>عدد الكلمات: <strong id="wordCount">0</strong></span>
+            <span>عدد الأحرف: <strong id="charCount">0</strong></span>
+        </div>
+
+        <form method="POST" id="editorForm">
+            <div class="editor-container" id="editorContainer">
+                <div class="editor-header">
+                    <div class="editor-title">
+                        <span>📝</span>
+                        <span>محرر الكود</span>
+                    </div>
+                    <div class="editor-actions">
+                        <button type="button" class="editor-btn btn-format" onclick="formatCode()">
+                            تنسيق الكود
+                        </button>
+                        <button type="button" class="editor-btn btn-fullscreen" onclick="toggleFullscreen()">
+                            ملء الشاشة
+                        </button>
+                    </div>
+                </div>
+                <textarea name="content" id="codeEditor" placeholder="محتوى الملف...">{{ content }}</textarea>
+            </div>
+            
+            <div class="actions">
+                <button type="submit" class="btn btn-success" id="saveBtn">
+                    💾 حفظ التغييرات
+                </button>
+                <a href="/" class="btn btn-secondary">
+                    🔙 العودة للملفات
+                </a>
+                <button type="button" class="btn btn-primary" onclick="downloadFile()">
+                    ⬇️ تحميل الملف
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const codeEditor = document.getElementById('codeEditor');
+        const lineCount = document.getElementById('lineCount');
+        const wordCount = document.getElementById('wordCount');
+        const charCount = document.getElementById('charCount');
+        const saveBtn = document.getElementById('saveBtn');
+        const editorForm = document.getElementById('editorForm');
+        
+        let isFullscreen = false;
+        let hasUnsavedChanges = false;
+        
+        // Update stats
+        function updateStats() {
+            const content = codeEditor.value;
+            const lines = content.split('\n').length;
+            const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+            const chars = content.length;
+            
+            lineCount.textContent = lines;
+            wordCount.textContent = words;
+            charCount.textContent = chars;
+        }
+        
+        // Mark as changed
+        function markAsChanged() {
+            hasUnsavedChanges = true;
+            saveBtn.style.background = 'linear-gradient(45deg, #e74c3c, #c0392b)';
+            saveBtn.innerHTML = '💾 حفظ التغييرات *';
+        }
+        
+        // Mark as saved  
+        function markAsSaved() {
+            hasUnsavedChanges = false;
+            saveBtn.style.background = 'linear-gradient(45deg, #2ecc71, #27ae60)';
+            saveBtn.innerHTML = '💾 تم الحفظ ✅';
+            setTimeout(() => {
+                saveBtn.innerHTML = '💾 حفظ التغييرات';
+            }, 2000);
+        }
+        
+        // Event listeners
+        codeEditor.addEventListener('input', () => {
+            updateStats();
+            markAsChanged();
+        });
+        
+        codeEditor.addEventListener('keydown', (e) => {
+            // Tab key handling
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = codeEditor.selectionStart;
+                const end = codeEditor.selectionEnd;
+                
+                codeEditor.value = codeEditor.value.substring(0, start) + 
+                                 '    ' + 
+                                 codeEditor.value.substring(end);
+                
+                codeEditor.selectionStart = codeEditor.selectionEnd = start + 4;
+            }
+            
+            // Ctrl+S to save
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                editorForm.submit();
+            }
+        });
+        
+        // Form submission
+        editorForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(editorForm);
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                if (html.includes('saved successfully')) {
+                    markAsSaved();
+                    // Show success message
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'status success';
+                    successDiv.innerHTML = '<span>✅</span><span>تم حفظ الملف بنجاح!</span>';
+                    document.querySelector('.container').insertBefore(successDiv, document.querySelector('.file-info'));
+                    
+                    setTimeout(() => {
+                        successDiv.remove();
+                    }, 3000);
+                } else {
+                    alert('حدث خطأ أثناء الحفظ');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('حدث خطأ أثناء الحفظ');
+            });
+        });
+        
+        // Format code (basic)
+        function formatCode() {
+            const content = codeEditor.value;
+            // Basic Python formatting
+            if ('{{ filename }}'.endsWith('.py')) {
+                // Add basic indentation fixes
+                const lines = content.split('\n');
+                let formatted = '';
+                let indent = 0;
+                
+                lines.forEach(line => {
+                    const trimmed = line.trim();
+                    if (trimmed.endsWith(':')) {
+                        formatted += '    '.repeat(indent) + trimmed + '\n';
+                        indent++;
+                    } else if (trimmed === '' || trimmed.startsWith('#')) {
+                        formatted += trimmed + '\n';
+                    } else {
+                        formatted += '    '.repeat(indent) + trimmed + '\n';
+                    }
+                });
+                
+                codeEditor.value = formatted;
+                markAsChanged();
+                updateStats();
+            }
+        }
+        
+        // Toggle fullscreen
+        function toggleFullscreen() {
+            const container = document.getElementById('editorContainer');
+            
+            if (!isFullscreen) {
+                container.classList.add('fullscreen');
+                document.querySelector('.editor-btn.btn-fullscreen').textContent = 'خروج من ملء الشاشة';
+                isFullscreen = true;
+            } else {
+                container.classList.remove('fullscreen');
+                document.querySelector('.editor-btn.btn-fullscreen').textContent = 'ملء الشاشة';
+                isFullscreen = false;
+            }
+        }
+        
+        // Download file
+        function downloadFile() {
+            const content = codeEditor.value;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '{{ filename }}';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+        
+        // Warning before leaving with unsaved changes
+        window.addEventListener('beforeunload', (e) => {
+            if (hasUnsavedChanges) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+        
+        // Initialize
+        updateStats();
+        
+        // Auto-save every 30 seconds
+        setInterval(() => {
+            if (hasUnsavedChanges) {
+                editorForm.submit();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
